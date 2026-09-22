@@ -1,0 +1,10 @@
+sentence-transformers==5.1.2
+chromadb==1.5.9
+torch==2.9.1
+requests==2.32.5
+PyYAML==6.0.2
+pytest==8.4.2
+flake8==7.1.1
+mypy==1.14.1
+types-PyYAML
+types-requests
