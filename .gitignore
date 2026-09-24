@@ -4,4 +4,5 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 data/chroma/
+.cache/
 .DS_Store

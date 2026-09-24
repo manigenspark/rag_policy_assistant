@@ -78,3 +78,37 @@ class Chunk:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class Source:
+    """One retrieved chunk as it is cited in an answer."""
+
+    marker: str
+    chunk_id: str
+    doc: str
+    doc_version: str
+    status: str
+    section_code: str
+    section_title: str
+    char_start: int
+    char_end: int
+    distance: float
+    text: str
+
+    def header(self) -> str:
+        return (
+            f"{self.marker} {self.doc} § {self.section_code} "
+            f"\"{self.section_title}\" "
+            f"(v{self.doc_version}, {self.status}, chars {self.char_start}-{self.char_end})"
+        )
+
+
+@dataclass(frozen=True)
+class Answer:
+    question: str
+    text: str
+    sources: tuple[Source, ...]
+    model: str
+    retrieval: str = "dense"
+    warning: str | None = None

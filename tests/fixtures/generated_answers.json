@@ -1,0 +1,149 @@
+{
+  "model": "mistral:7b",
+  "recorded_at": "2026-09-23T21:50:17.129420+00:00",
+  "answers": {
+    "per_diem": {
+      "question": "What is the international per diem for meals and incidentals?",
+      "text": "The international per diem for meals and incidental expenses is 95 USD per day, as stated in [S1] POL-EXP-006 \"International Travel and Per Diem\" (v3.0, current, chars 3106-3810).",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-006::0",
+        "expense_policy_2022.md::POL-EXP-006::0",
+        "expense_policy.md::POL-EXP-005::0",
+        "expense_policy_2022.md::POL-EXP-005::0",
+        "expense_policy.md::POL-EXP-001::0"
+      ],
+      "mode": "hybrid"
+    },
+    "pre_approval": {
+      "question": "What is the pre-approval threshold for a single expense?",
+      "text": "The pre-approval threshold for a single expense is 500 USD, as stated in [S1]. Recurring subscriptions of any value require pre-approval regardless of the individual charge amount, because the aggregate annual cost is the relevant figure [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-004::0",
+        "expense_policy_2022.md::POL-EXP-004::0",
+        "expense_policy.md::POL-EXP-001::0",
+        "expense_policy_2022.md::POL-EXP-001::0",
+        "expense_policy.md::POL-EXP-003::0"
+      ],
+      "mode": "hybrid"
+    },
+    "expense_deadline": {
+      "question": "How many days do I have to submit an expense claim?",
+      "text": "The expense claim should be submitted within 30 calendar days of the date the expense was incurred, as stated in the current version of the Expense Reimbursement Policy [S1]. If the claim is submitted after this window, it requires written justification from the employee's manager and is approved at the discretion of Finance Operations.",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-002::0",
+        "expense_policy_2022.md::POL-EXP-002::0",
+        "remote_work_policy.md::POL-RMT-003::0",
+        "expense_policy.md::POL-EXP-003::0",
+        "pto_policy.md::POL-PTO-002::0"
+      ],
+      "mode": "hybrid"
+    },
+    "receipt_threshold": {
+      "question": "From what amount do I need an itemised receipt?",
+      "text": "From the provided policies, an itemised receipt is required for expenses of 25 USD or more, as stated in [S1]. For expenses below 25 USD, a written description of the expense and its business purpose is sufficient.",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-003::0",
+        "expense_policy_2022.md::POL-EXP-003::0",
+        "expense_policy.md::POL-EXP-004::0",
+        "expense_policy.md::POL-EXP-006::0",
+        "remote_work_policy.md::POL-RMT-003::0"
+      ],
+      "mode": "hybrid"
+    },
+    "pto_carryover": {
+      "question": "How many unused PTO days can I carry into the next year?",
+      "text": "Employees can carry a maximum of 5 unused PTO days into the next year, as stated in [S1]. Any unused days beyond the carryover limit are forfeited at year end and are not paid out, except where local law requires otherwise [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "pto_policy.md::POL-PTO-003::0",
+        "pto_policy.md::POL-PTO-001::0",
+        "pto_policy.md::POL-PTO-004::0",
+        "pto_policy.md::POL-PTO-002::0",
+        "expense_policy_2022.md::POL-EXP-002::0"
+      ],
+      "mode": "hybrid"
+    },
+    "sick_leave": {
+      "question": "How many paid sick days do employees receive per year?",
+      "text": "Employees receive up to 10 paid sick days per calendar year, as stated in [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "pto_policy.md::POL-PTO-004::0",
+        "pto_policy.md::POL-PTO-001::0",
+        "pto_policy.md::POL-PTO-003::0",
+        "expense_policy_2022.md::POL-EXP-006::0",
+        "expense_policy.md::POL-EXP-006::0"
+      ],
+      "mode": "hybrid"
+    },
+    "parental_leave": {
+      "question": "How many weeks of paid parental leave are employees entitled to?",
+      "text": "Employees are entitled to 16 weeks of paid parental leave following the birth or adoption of a child, available to all parents regardless of gender [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "pto_policy.md::POL-PTO-005::0",
+        "pto_policy.md::POL-PTO-006::0",
+        "pto_policy.md::POL-PTO-004::0",
+        "pto_policy.md::POL-PTO-003::0",
+        "pto_policy.md::POL-PTO-002::0"
+      ],
+      "mode": "hybrid"
+    },
+    "core_hours": {
+      "question": "What are the core collaboration hours for remote employees?",
+      "text": "The core collaboration hours for remote employees are between 10:00 and 16:00 in the time zone of their assigned office [S1]. Meetings requiring cross-team attendance are scheduled exclusively within this window. Employees working outside their assigned office time zone by more than three hours must agree a written overlap schedule with their manager [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "remote_work_policy.md::POL-RMT-002::0",
+        "remote_work_policy.md::POL-RMT-004::0",
+        "remote_work_policy.md::POL-RMT-001::0",
+        "remote_work_policy.md::POL-RMT-004::1",
+        "pto_policy.md::POL-PTO-001::0"
+      ],
+      "mode": "hybrid"
+    },
+    "stipend": {
+      "question": "What is the one-time home office stipend for remote employees?",
+      "text": "The one-time home office stipend for remote employees is 800 USD within their first six months of remote status, as stated in [S1]. After that, a recurring annual allowance of 300 USD is provided for consumables and replacements [S1]. However, it's important to note that this stipend does not cover rent, utilities, or internet service [S1]. For more details on the submission deadlines, receipt requirements, and eligible items, please refer to POL-EXP-002 and POL-EXP-003 mentioned in [S1].",
+      "n_sources": 5,
+      "source_ids": [
+        "remote_work_policy.md::POL-RMT-003::0",
+        "remote_work_policy.md::POL-RMT-001::0",
+        "remote_work_policy.md::POL-RMT-002::0",
+        "remote_work_policy.md::POL-RMT-004::0",
+        "remote_work_policy.md::POL-RMT-006::0"
+      ],
+      "mode": "hybrid"
+    },
+    "policy_code": {
+      "question": "POL-EXP-004",
+      "text": "The expense policy (POL-EXP-004) governs the reimbursement of business expenses incurred by employees on behalf of the company. It applies to all employees worldwide, including those on hybrid and fully remote arrangements [S1]. Expenses must be reasonable, necessary, and directly connected to company business [S1].\n\nExpense claims must be submitted within 30 calendar days of the date the expense was incurred [S2]. Claims older than 90 calendar days will not be reimbursed under any circumstances [S2]. Reimbursements are paid through the standard payroll cycle following approval, and employees should expect payment within two pay periods [S2].\n\nAny single expense exceeding 1,000 USD requires written manager approval before the expense is incurred [S4]. Recurring subscriptions above 1,000 USD annually also require pre-approval [S4].\n\nThe following are never reimbursable: traffic fines and parking penalties, personal travel insurance, in-flight entertainment and internet upgrades, airport lounge memberships purchased individually, childcare, pet care, personal grooming, and losses arising from personal negligence [S5]. Expenses incurred while working from another country under a personal remote work arrangement are also non-reimbursable [S5].",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-001::0",
+        "expense_policy.md::POL-EXP-002::0",
+        "expense_policy_2022.md::POL-EXP-001::0",
+        "expense_policy_2022.md::POL-EXP-004::0",
+        "expense_policy.md::POL-EXP-007::0"
+      ],
+      "mode": "hybrid"
+    },
+    "tuition_refusal": {
+      "question": "What is the annual tuition reimbursement cap for employees?",
+      "text": "The annual tuition reimbursement cap for employees is not specified in the provided policies. [S1], [S2], [S3], [S4], and [S5] do not contain information regarding tuition reimbursement caps.",
+      "n_sources": 5,
+      "source_ids": [
+        "expense_policy.md::POL-EXP-006::0",
+        "expense_policy.md::POL-EXP-001::0",
+        "remote_work_policy.md::POL-RMT-003::0",
+        "expense_policy_2022.md::POL-EXP-001::0",
+        "expense_policy.md::POL-EXP-004::0"
+      ],
+      "mode": "hybrid"
+    }
+  }
+}

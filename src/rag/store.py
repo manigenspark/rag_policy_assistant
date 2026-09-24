@@ -74,3 +74,21 @@ class VectorStore:
                 )
             )
         return hits
+
+    def get_all(self) -> list[DenseHit]:
+        """Load every stored chunk for sparse search. Distances are unused (0)."""
+        result = self._collection.get(include=["documents", "metadatas"])
+        ids = result.get("ids") or []
+        documents = result.get("documents") or [""] * len(ids)
+        metadatas = result.get("metadatas") or [{}] * len(ids)
+        hits: list[DenseHit] = []
+        for chunk_id, text, meta in zip(ids, documents, metadatas):
+            hits.append(
+                DenseHit(
+                    chunk_id=chunk_id,
+                    text=text or "",
+                    distance=0.0,
+                    metadata=dict(meta or {}),
+                )
+            )
+        return hits
