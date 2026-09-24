@@ -1,0 +1,90 @@
+cases:
+  - id: per_diem
+    question: What is the international per diem for meals and incidentals?
+    expected_section: POL-EXP-006
+    expected_doc: expense_policy.md
+    expected_keywords:
+      - "95"
+    retrieval: hybrid
+
+  - id: pre_approval
+    question: What is the pre-approval threshold for a single expense?
+    expected_section: POL-EXP-004
+    expected_doc: expense_policy.md
+    expected_keywords:
+      - "500"
+    retrieval: hybrid
+
+  - id: expense_deadline
+    question: How many days do I have to submit an expense claim?
+    expected_section: POL-EXP-002
+    expected_doc: expense_policy.md
+    expected_keywords:
+      - "30"
+    retrieval: hybrid
+
+  - id: receipt_threshold
+    question: From what amount do I need an itemised receipt?
+    expected_section: POL-EXP-003
+    expected_doc: expense_policy.md
+    expected_keywords:
+      - "25"
+    retrieval: hybrid
+
+  - id: pto_carryover
+    question: How many unused PTO days can I carry into the next year?
+    expected_section: POL-PTO-003
+    expected_doc: pto_policy.md
+    expected_keywords:
+      - "5"
+    retrieval: hybrid
+
+  - id: sick_leave
+    question: How many paid sick days do employees receive per year?
+    expected_section: POL-PTO-004
+    expected_doc: pto_policy.md
+    expected_keywords:
+      - "10"
+    retrieval: hybrid
+
+  - id: parental_leave
+    question: How many weeks of paid parental leave are employees entitled to?
+    expected_section: POL-PTO-005
+    expected_doc: pto_policy.md
+    expected_keywords:
+      - "16"
+    retrieval: hybrid
+
+  - id: core_hours
+    question: What are the core collaboration hours for remote employees?
+    expected_section: POL-RMT-002
+    expected_doc: remote_work_policy.md
+    expected_keywords:
+      - "10:00"
+      - "16:00"
+    retrieval: hybrid
+
+  - id: stipend
+    question: What is the one-time home office stipend for remote employees?
+    expected_section: POL-RMT-003
+    expected_doc: remote_work_policy.md
+    expected_keywords:
+      - "800"
+    retrieval: hybrid
+
+  - id: policy_code
+    question: POL-EXP-004
+    expected_section: POL-EXP-004
+    expected_doc: null
+    expected_keywords:
+      - approval
+    retrieval: hybrid
+    notes: Code-only query. Dense misses top-5; hybrid recovers a POL-EXP-004 chunk.
+
+  - id: tuition_refusal
+    question: What is the annual tuition reimbursement cap for employees?
+    expected_section: null
+    expected_doc: null
+    expected_keywords: []
+    retrieval: hybrid
+    expect_refusal: true

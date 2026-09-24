@@ -17,7 +17,18 @@ from rag.pipeline import RAGPipeline, format_answer  # noqa: E402
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Ask the policy RAG assistant")
     parser.add_argument("question", nargs="+", help="natural-language question")
-    parser.add_argument("--k", type=int, default=FINAL_K, help="dense top-k chunks")
+    parser.add_argument("--k", type=int, default=FINAL_K, help="final top-k chunks")
+    parser.add_argument(
+        "--mode",
+        choices=("dense", "hybrid", "rerank"),
+        default="rerank",
+        help="dense | hybrid (RRF) | rerank (hybrid + cross-encoder)",
+    )
+    parser.add_argument(
+        "--detect-conflicts",
+        action="store_true",
+        help="annotate version conflicts in the retrieved set (does not drop sources)",
+    )
     args = parser.parse_args(argv)
     question = " ".join(args.question)
 
@@ -28,7 +39,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    answer = RAGPipeline().answer(question, k=args.k)
+    answer = RAGPipeline().answer(
+        question,
+        k=args.k,
+        mode=args.mode,
+        detect_conflicts=True if args.detect_conflicts else None,
+    )
     print(format_answer(answer))
     return 0
 

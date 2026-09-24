@@ -1,0 +1,47 @@
+stages:
+  - build
+  - test
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  HF_HOME: "$CI_PROJECT_DIR/.cache/huggingface"
+  HF_HUB_DISABLE_TELEMETRY: "1"
+  PYTHONPATH: "$CI_PROJECT_DIR:$CI_PROJECT_DIR/src"
+  TRANSFORMERS_OFFLINE: "0"
+
+cache:
+  key: hf-minilm
+  paths:
+    - .cache/huggingface
+
+.python_job:
+  image: python:3.11
+  before_script:
+    - pip install --upgrade pip
+    - pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cpu
+    - pip install -r requirements.txt
+
+install_dependencies:
+  extends: .python_job
+  stage: build
+  script:
+    - python -c "import sentence_transformers, chromadb; print('ok')"
+
+run_tests:
+  extends: .python_job
+  stage: test
+  script:
+    - pytest --maxfail=1 --disable-warnings -q
+
+check_formatting:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install flake8
+    - flake8 . --max-line-length=100
+
+check_types:
+  extends: .python_job
+  stage: test
+  script:
+    - mypy src/

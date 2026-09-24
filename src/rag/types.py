@@ -111,3 +111,4 @@ class Answer:
     sources: tuple[Source, ...]
     model: str
     retrieval: str = "dense"
+    warning: str | None = None

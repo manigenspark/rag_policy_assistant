@@ -1,9 +1,21 @@
-"""Vector-only RAG: embed question, dense search, grounded generation."""
+"""RAG retrieve + generate: dense, hybrid RRF, or hybrid + cross-encoder rerank."""
 from __future__ import annotations
 
-from config import CHROMA_DIR, COLLECTION, FINAL_K, OLLAMA_MODEL
+from config import (
+    CANDIDATE_K,
+    CHROMA_DIR,
+    COLLECTION,
+    DETECT_VERSION_CONFLICTS,
+    FINAL_K,
+    OLLAMA_MODEL,
+    RRF_K,
+)
 from rag.embeddings import encode_query
 from rag.generate import complete
+from rag.hybrid import FusedHit, fuse
+from rag.keyword import keyword_search
+from rag.lineage import find_version_conflicts, format_conflicts
+from rag.rerank import rerank
 from rag.store import DenseHit, VectorStore
 from rag.types import Answer, Source
 
@@ -43,28 +55,81 @@ def hits_to_sources(hits: list[DenseHit]) -> list[Source]:
     return sources
 
 
+def _fused_as_dense(hits: list[FusedHit]) -> list[DenseHit]:
+    return [
+        DenseHit(
+            chunk_id=hit.chunk_id,
+            text=hit.text,
+            distance=1.0 - hit.rrf,
+            metadata=dict(hit.metadata),
+        )
+        for hit in hits
+    ]
+
+
 class RAGPipeline:
     def __init__(self, store: VectorStore | None = None) -> None:
         self.store = store or VectorStore(CHROMA_DIR, COLLECTION)
 
-    def retrieve(self, question: str, k: int = FINAL_K) -> list[Source]:
+    def _hybrid_candidates(self, question: str) -> list[FusedHit]:
+        query_vec = encode_query(question)
+        dense = self.store.dense_search(query_vec, k=CANDIDATE_K)
+        keyword = keyword_search(question, self.store.get_all(), k=CANDIDATE_K)
+        return fuse(dense, keyword, rrf_k=RRF_K)
+
+    def retrieve(
+        self,
+        question: str,
+        k: int = FINAL_K,
+        mode: str = "dense",
+    ) -> list[Source]:
         if self.store.count() == 0:
             raise RuntimeError(
                 "the vector store is empty; run `python scripts/ingest.py` first"
             )
-        query_vec = encode_query(question)
-        hits = self.store.dense_search(query_vec, k=k)
-        return hits_to_sources(hits)
+        if mode == "dense":
+            query_vec = encode_query(question)
+            hits = self.store.dense_search(query_vec, k=k)
+            return hits_to_sources(hits)
+        if mode == "hybrid":
+            fused = self._hybrid_candidates(question)[:k]
+            return hits_to_sources(_fused_as_dense(fused))
+        if mode == "rerank":
+            fused = self._hybrid_candidates(question)
+            reranked = rerank(question, fused, top_k=k)
+            dense_hits = [
+                DenseHit(
+                    chunk_id=hit.chunk_id,
+                    text=hit.text,
+                    distance=1.0 - hit.probability,
+                    metadata=dict(hit.metadata),
+                )
+                for hit in reranked
+            ]
+            return hits_to_sources(dense_hits)
+        raise ValueError(f"unknown retrieval mode {mode!r}")
 
-    def answer(self, question: str, k: int = FINAL_K) -> Answer:
-        sources = self.retrieve(question, k=k)
+    def answer(
+        self,
+        question: str,
+        k: int = FINAL_K,
+        mode: str = "dense",
+        *,
+        detect_conflicts: bool | None = None,
+    ) -> Answer:
+        sources = self.retrieve(question, k=k, mode=mode)
         text = complete(question, sources)
+        enabled = DETECT_VERSION_CONFLICTS if detect_conflicts is None else detect_conflicts
+        warning = (
+            format_conflicts(find_version_conflicts(sources)) if enabled else None
+        )
         return Answer(
             question=question,
             text=text,
             sources=tuple(sources),
             model=OLLAMA_MODEL,
-            retrieval="dense",
+            retrieval=mode,
+            warning=warning,
         )
 
 
@@ -74,9 +139,15 @@ def format_answer(answer: Answer) -> str:
         "",
         answer.text,
         "",
-        f"model: {answer.model}   retrieval: {answer.retrieval}",
-        "sources:",
     ]
+    if answer.warning:
+        lines.extend([answer.warning, ""])
+    lines.extend(
+        [
+            f"model: {answer.model}   retrieval: {answer.retrieval}",
+            "sources:",
+        ]
+    )
     for source in answer.sources:
         lines.append(
             f"  {source.header()}  dist={source.distance:.3f}"
