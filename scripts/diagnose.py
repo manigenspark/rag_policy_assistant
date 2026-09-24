@@ -106,15 +106,17 @@ def main() -> int:
             k=5,
             mode="hybrid",
             detect_conflicts=False,
+            prefer_current=False,
         )
         print(format_answer(silent))
         print()
-        print("3b. generation with DETECT_CONFLICTS off (rerank, ask.py default)")
+        print("3b. generation with DETECT_CONFLICTS off (rerank, unfiltered)")
         reranked = pipeline.answer(
             case["question"],
             k=5,
             mode="rerank",
             detect_conflicts=False,
+            prefer_current=False,
         )
         print(format_answer(reranked))
         print()
@@ -124,6 +126,7 @@ def main() -> int:
             k=5,
             mode="hybrid",
             detect_conflicts=True,
+            prefer_current=False,
         )
         print(format_answer(flagged))
         kept = [source.chunk_id for source in silent.sources] == [

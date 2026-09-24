@@ -67,7 +67,11 @@ task: quote figures exactly as they appear, from sources that disagree. Hybrid
 happens to follow [S1] (current, 95). Rerank follows both, because [S1] is the
 archive. Either output is a faithful reading of a contradictory context.
 
-**The corpus is the fault.**
+**Default `ask.py` now prefers current.** Archived chunks are dropped before
+generation, so the employee-facing answer is 95 USD. Reproduce the raw
+failure with `python scripts/ask.py --include-archived "..."` or
+`scripts/diagnose.py` (`prefer_current=False`). Filtering is the remedy;
+the planted file stays in the index so the diagnosis is still greppable.
 
 ## What the detector does — and does not do
 

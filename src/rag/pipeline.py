@@ -7,6 +7,7 @@ from config import (
     COLLECTION,
     DETECT_VERSION_CONFLICTS,
     FINAL_K,
+    MIN_RERANK_PROB,
     OLLAMA_MODEL,
     RRF_K,
 )
@@ -14,7 +15,12 @@ from rag.embeddings import encode_query
 from rag.generate import complete
 from rag.hybrid import FusedHit, fuse
 from rag.keyword import keyword_search
-from rag.lineage import find_version_conflicts, format_conflicts
+from rag.lineage import (
+    find_version_conflicts,
+    format_conflicts,
+    needs_archived_context,
+    sources_for_generation,
+)
 from rag.rerank import rerank
 from rag.store import DenseHit, VectorStore
 from rag.types import Answer, Source
@@ -55,6 +61,16 @@ def hits_to_sources(hits: list[DenseHit]) -> list[Source]:
     return sources
 
 
+def _without_archived_dense(hits: list[DenseHit]) -> list[DenseHit]:
+    kept = [hit for hit in hits if str(hit.metadata.get("status") or "") != "archived"]
+    return kept if kept else hits
+
+
+def _without_archived_fused(hits: list[FusedHit]) -> list[FusedHit]:
+    kept = [hit for hit in hits if str(hit.metadata.get("status") or "") != "archived"]
+    return kept if kept else hits
+
+
 def _fused_as_dense(hits: list[FusedHit]) -> list[DenseHit]:
     return [
         DenseHit(
@@ -82,6 +98,9 @@ class RAGPipeline:
         question: str,
         k: int = FINAL_K,
         mode: str = "dense",
+        *,
+        prefer_current: bool = False,
+        min_prob: float | None = None,
     ) -> list[Source]:
         if self.store.count() == 0:
             raise RuntimeError(
@@ -89,14 +108,22 @@ class RAGPipeline:
             )
         if mode == "dense":
             query_vec = encode_query(question)
-            hits = self.store.dense_search(query_vec, k=k)
+            pool = CANDIDATE_K if prefer_current else k
+            hits = self.store.dense_search(query_vec, k=pool)
+            if prefer_current:
+                hits = _without_archived_dense(hits)[:k]
             return hits_to_sources(hits)
         if mode == "hybrid":
-            fused = self._hybrid_candidates(question)[:k]
-            return hits_to_sources(_fused_as_dense(fused))
+            fused = self._hybrid_candidates(question)
+            if prefer_current:
+                fused = _without_archived_fused(fused)
+            return hits_to_sources(_fused_as_dense(fused[:k]))
         if mode == "rerank":
             fused = self._hybrid_candidates(question)
-            reranked = rerank(question, fused, top_k=k)
+            if prefer_current:
+                fused = _without_archived_fused(fused)
+            floor = MIN_RERANK_PROB if min_prob is None else min_prob
+            reranked = rerank(question, fused, top_k=k, min_prob=floor)
             dense_hits = [
                 DenseHit(
                     chunk_id=hit.chunk_id,
@@ -116,8 +143,21 @@ class RAGPipeline:
         mode: str = "dense",
         *,
         detect_conflicts: bool | None = None,
+        prefer_current: bool = True,
     ) -> Answer:
-        sources = self.retrieve(question, k=k, mode=mode)
+        # Cross-encoder still scores archived chunks. We strip them after
+        # rerank, unless the question is about old vs new policy.
+        need_old = needs_archived_context(question)
+        sources = self.retrieve(
+            question,
+            k=k,
+            mode=mode,
+            prefer_current=False,
+            min_prob=0.0 if need_old else None,
+        )
+        sources = sources_for_generation(
+            question, sources, prefer_current=prefer_current
+        )
         text = complete(question, sources)
         enabled = DETECT_VERSION_CONFLICTS if detect_conflicts is None else detect_conflicts
         warning = (

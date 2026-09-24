@@ -29,6 +29,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="annotate version conflicts in the retrieved set (does not drop sources)",
     )
+    parser.add_argument(
+        "--include-archived",
+        action="store_true",
+        help="always send archived chunks to the LLM (default: only for old/new questions)",
+    )
     args = parser.parse_args(argv)
     question = " ".join(args.question)
 
@@ -44,6 +49,7 @@ def main(argv: list[str] | None = None) -> int:
         k=args.k,
         mode=args.mode,
         detect_conflicts=True if args.detect_conflicts else None,
+        prefer_current=not args.include_archived,
     )
     print(format_answer(answer))
     return 0

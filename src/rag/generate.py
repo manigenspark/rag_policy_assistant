@@ -13,6 +13,11 @@ Rules:
 - If the sources do not contain the answer, say you cannot find it in the
   provided policies. Do not invent policy.
 - Quote figures (dollars, days, thresholds) exactly as they appear in the sources.
+- If the same section appears as current and archived, report BOTH figures.
+  Label the archived value as previous and the current value as current.
+  Do not mention only the current number when an older number is in the sources.
+- Do not add topics the question did not ask and the sources do not require
+  (for example domestic travel or remote work on a per-diem question).
 - Keep the answer concise: a few sentences, then stop.
 """
 

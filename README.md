@@ -86,7 +86,9 @@ python scripts/diagnose.py              # planted-conflict evidence
 Ollama must be reachable at `OLLAMA_HOST` (default
 `http://host.docker.internal:11434`) with `mistral:7b` pulled. Set
 `DETECT_CONFLICTS=1` or pass `--detect-conflicts` to annotate version
-collisions without dropping sources.
+collisions. Dense, keyword, and the cross-encoder still see the archived
+file. After rerank, archived chunks are dropped before the LLM unless the
+question is about old vs new policy (or you pass `--include-archived`).
 
 ## How to test it
 

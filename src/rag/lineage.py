@@ -1,15 +1,69 @@
-"""Flag version conflicts in a retrieved set. Never silently drop a source.
+"""Flag version conflicts and decide when archived chunks reach the LLM.
 
-The planted defect is an archived expense policy that shares section codes
-with the current one. Retrieval is supposed to return both; this module only
-annotates the contradiction so the caller can see it.
+Retrieval is supposed to see the planted stale document. Generation drops it
+unless the question is actually about old vs new policy.
 """
 from __future__ import annotations
 
+import re
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from rag.types import Source
+
+# Comparative / historical questions need the archived copy in the prompt.
+# A rate question ("how much per day") does not.
+ARCHIVE_QUESTION = re.compile(
+    r"(?i)("
+    r"\bold\b|\bprevious\b|\bbefore\b|\barchived\b|\bformer\b|"
+    r"used to|\bdifference\b|\bdiffer\b|\bcompare\b|\bversus\b|\bvs\.?\b|"
+    r"when did|\bchanged\b|turn(?:ed)? to|new and old|old and new|"
+    r"\bbefore and now\b|\band now\b|"
+    r"v1\.4|\b2022\b"
+    r")"
+)
+
+
+def needs_archived_context(question: str) -> bool:
+    return bool(ARCHIVE_QUESTION.search(question))
+
+
+def renumber_sources(sources: list[Source]) -> list[Source]:
+    return [
+        replace(source, marker=f"[S{index}]")
+        for index, source in enumerate(sources, start=1)
+    ]
+
+
+def drop_archived_sources(sources: list[Source]) -> list[Source]:
+    """Remove archived chunks. If that would empty the set, leave it alone."""
+    kept = [source for source in sources if source.status != "archived"]
+    if not kept:
+        return sources
+    return renumber_sources(kept)
+
+
+def focus_on_top_section(sources: list[Source]) -> list[Source]:
+    """Keep every version of the top-ranked section; drop off-topic extras."""
+    if not sources:
+        return sources
+    code = sources[0].section_code
+    kept = [source for source in sources if source.section_code == code]
+    return renumber_sources(kept)
+
+
+def sources_for_generation(
+    question: str,
+    sources: list[Source],
+    *,
+    prefer_current: bool,
+) -> list[Source]:
+    """Keep archived text only when the question needs a before/after compare."""
+    if not prefer_current:
+        return sources
+    if needs_archived_context(question):
+        return focus_on_top_section(sources)
+    return drop_archived_sources(sources)
 
 
 @dataclass(frozen=True)
